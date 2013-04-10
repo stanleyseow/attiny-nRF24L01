@@ -22,18 +22,6 @@
     DEALINGS IN THE SOFTWARE.
 
     $Id$
-    
-Added to github repository by Stanley Seow
-for Nordic nRF24L01 wireless modules
-
-Date : 10 Apr 2013
-e-mail : stanleyseow@gmail.com
-github : https://hithub.com/stanleyseow/attiny-nRF24L01
-Desc   : This mirf85 Arduino library is for attiny85/x5 and attiny84/x4
-
-Added support for RF_SETUP in config() function, default to 1Mbps, max power
- 
-    
 */
 
 #ifndef _MIRF85_H_
@@ -47,7 +35,9 @@ Added support for RF_SETUP in config() function, default to 1Mbps, max power
 // Nrf24l settings
 
 #define mirf_ADDR_LEN	5
-#define mirf_CONFIG ((1<<EN_CRC) | (0<<CRCO) )
+// #define mirf_CONFIG ((1<<EN_CRC) | (0<<CRCO) )
+// Make it compatible with CRC length of RF24
+#define mirf_CONFIG ((1<<EN_CRC) | (1<<CRCO) )
 
 class Nrf24l {
 	public:

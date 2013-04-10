@@ -27,7 +27,7 @@ for Nordic nRF24L01 wireless modules
 
 Date : 10 Apr 2013
 e-mail : stanleyseow@gmail.com
-github : https://hithub.com/stanleyseow/attiny-nRF24L01
+github : 
 Desc   : This mirf85 Arduino library is for attiny85/x5 and attiny84/x4
 
 Added support for RF_SETUP in config() function, default to 1Mbps, max power
