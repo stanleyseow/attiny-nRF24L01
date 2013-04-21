@@ -21,6 +21,9 @@ All the support files and libraries for the attiny85 for nRF24L01 is at repo lis
  
  The repo for the RF24 lib is at https://github.com/stanleyseow/RF24/
 
+ Added TinyDebugSerial to the codes for TX only serial debugging
+ https://code.google.com/p/arduino-tiny/
+
 */
 
 
@@ -32,8 +35,16 @@ All the support files and libraries for the attiny85 for nRF24L01 is at repo lis
 #include <Mirf85.h>
 #include <nRF24L0185.h>
 #include <MirfHardwareSpiDriver85.h>
+#include <TinyDebugSerial.h>
+TinyDebugSerial mySerial = TinyDebugSerial(); // PB3 on tiny85 = TX pin
 
 
+// ATtiny25/45/85 Pin map
+//                                 +-\/-+
+//                Reset/Ain0 (D 5) PB5  1|o   |8  Vcc
+//  nRF24L01 CE, Pin3 - Ain3 (D 3) PB3  2|    |7  PB2 (D 2) Ain1 - nRF24L01 SCK, pin5
+// nRF24L01 CSN, Pin4 - Ain2 (D 4) PB4  3|    |6  PB1 (D 1) pwm1 - nRF24L01 MOSI, pin7
+//                                 GND  4|    |5  PB0 (D 0) pwm0 - nRF24L01 MISO, pin6
 // Pinout
 // CE   - Pin 2 / D3 / nRF3
 // CSN  - Pin 3 / D4 / nRF4
@@ -44,12 +55,17 @@ All the support files and libraries for the attiny85 for nRF24L01 is at repo lis
 // Vcc  - Pin 8 ( 3.3V )
 
 int bufferSize = 0;
-byte buffer[] = { 'H', 'e', 'l', 'l', 'o','!' };
+char buffer[32] = "";
+uint16_t counter = 0; 
+uint8_t nodeID = 0;
 
 #define CE  PB3 //ATTiny
 #define CSN PB4 //ATTiny
 
 void setup(){
+  
+  mySerial.begin( 9600 );    // for tiny_debug_serial 
+  
   Mirf.cePin = CE;
   Mirf.csnPin = CSN;
   Mirf.spi = &MirfHardwareSpi;
@@ -61,7 +77,8 @@ void setup(){
   byte RADDR[] = {0xe2, 0xf0, 0xf0, 0xf0, 0xf0};
   byte TADDR[] = {0xe3, 0xf0, 0xf0, 0xf0, 0xf0};
  
-  Mirf.payload = sizeof(buffer);
+  // Get nodeID from TXADDR and mask the first byte (0xff)
+  nodeID = *TADDR & 0xff; 
   
   Mirf.channel = 0x4c; // Same as rpi-hub and sendto_hub
   Mirf.rfsetup = 0x06; // 1Mbps, Max power
@@ -72,38 +89,87 @@ void setup(){
   // Enable dynamic payload 
   Mirf.configRegister( FEATURE, 1<<EN_DPL ); 
   Mirf.configRegister( DYNPD, 1<<DPL_P0 | 1<<DPL_P1 | 1<<DPL_P2 | 1<<DPL_P3 | 1<<DPL_P4 | 1<<DPL_P5 ); 
+  
+  
+  delay(100);
+  
+  // Print out register readinds for important settings
+  uint8_t rf_ch, rf_setup = 0;
+  byte tx_addr[5];
+  byte rx_addr[5];
+  
+  Mirf.readRegister(RF_CH, &rf_ch,sizeof(rf_ch));
+  Mirf.readRegister(RF_SETUP, &rf_setup, sizeof(rf_setup));
+  Mirf.readRegister(TX_ADDR, tx_addr, sizeof(tx_addr));
+  Mirf.readRegister(RX_ADDR_P1, rx_addr, sizeof(rx_addr));
+  
+   mySerial.println();
+  
+  mySerial.print("RF_CH :");
+  mySerial.println(rf_ch,HEX);  
+  
+  mySerial.print("RF_SETUP :");
+  mySerial.println(rf_setup,BIN);  
+  
+  mySerial.print("TX_ADDR :");
+  for ( int i=0;i<5;i++ ) {  // Loop 5 times, print in HEX
+  mySerial.print( tx_addr[i], HEX);
+  }
+  mySerial.println();
+  
+  mySerial.print("RX_ADDR :");
+  for ( int i=0;i<5;i++ ) {  // Loop 5 times, print in HEX
+  mySerial.print( rx_addr[i], HEX);
+  }
+  mySerial.println();
     
+  delay(2000);      // For serial debug to read the init config output
+  
 }
 
 void loop(){
   
   uint8_t sent = false;
+  uint8_t sensor1;
+
+  // Read from sensor at pin 4 (CSN)
+  pinMode(4, INPUT);
+  delay(10);
+  sensor1 = digitalRead(4);
+  pinMode(4, OUTPUT);
+
+  sprintf(buffer,"%2X,%04d,%06d",nodeID,sensor1,counter++);
+  Mirf.payload = strlen(buffer);
   
-  Mirf.send(buffer);
+  Mirf.send((byte *) buffer);
   while( Mirf.isSending() )
   {
     delay(1);
     sent = true; // Sent success
   }
-
-  delay(400);
-  if (sent) {   // Blink CE ( pin 2), 3 times 
-      digitalWrite(3,HIGH);  
-      delay(100);
-      digitalWrite(3,LOW);  
-      delay(100);
-      digitalWrite(3,HIGH); 
-      delay(100);
-      digitalWrite(3,LOW);  
-      delay(100);
-      digitalWrite(3,HIGH); 
-      delay(100);
-      digitalWrite(3,LOW);  
-      delay(100);
-  } else {
-      digitalWrite(3,LOW);  // Sent not success, OFF the LED
-      delay(600);
-  }
-
-}
+  
+    delay(500);  
+    
+    if (sent) {   // Blink CE (pin 2), 3 times, unused when not in TX/RX mode 
+        mySerial.print("Sent :");
+        mySerial.println(buffer);
+        /*
+        digitalWrite(3,HIGH);  
+        delay(50);
+        digitalWrite(3,LOW);  
+        delay(50);
+        digitalWrite(3,HIGH); 
+        delay(50);
+        digitalWrite(3,LOW);  
+        delay(50);
+        digitalWrite(3,HIGH); 
+        delay(50);
+        digitalWrite(3,LOW);  
+        delay(50);
+        */
+    } 
+   
+    delay(500);
+    
+} // End loop()
 
