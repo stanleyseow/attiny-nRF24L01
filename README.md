@@ -3,6 +3,7 @@ attiny-nRF24L01
 Arduino attiny support files for nRF24L01 RF modules, ported from Arduino mirf libraries to use USI as attiny does 
 not have hardware SPI.
 The example should work without modification to the forked RF24 libraries at https://github.com/stanleyseow/RF24
+Updated to support TinyDebugSerial for a TX only serial debugging.
 
 Setup
 =====
@@ -33,8 +34,10 @@ attiny85 to nRF24L01
 
 Links
 =====
+- http://arduino-for-beginners.blogspot.com/2013/04/process-of-getting-attiny85-to-work.html
 - http://arduino.cc/forum/index.php/topic,115822.msg1194156.html#msg1194156
 - http://www.insidegadgets.com/2012/08/22/using-the-nrf24l01-wireless-module/
+
 
 Contacts
 ========
