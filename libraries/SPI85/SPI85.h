@@ -19,6 +19,9 @@ e-mail : stanleyseow@gmail.com
 github : https://hithub.com/stanleyseow/attiny-nRF24L01
 Desc   : This SPI 85 is for attiny85/x5 and attiny84/x4
 
+Date : 24 July 2013
+Desc : Changes the transfer using bitwise operator | instead of +
+
  */
 
 #ifndef _SPI85_H_INCLUDED
@@ -66,7 +69,7 @@ uint8_t SPI85Class::transfer(uint8_t _data) {
   USISR = _BV(USIOIF);
   
   while((USISR & _BV(USIOIF)) == 0){
-    USICR = _BV(USIWM0) + _BV(USICS1) + _BV(USICLK) + _BV(USITC);
+    USICR = _BV(USIWM0) | _BV(USICS1) | _BV(USICLK) | _BV(USITC);
   }
   return USIDR;
 }

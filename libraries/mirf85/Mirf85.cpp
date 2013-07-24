@@ -68,9 +68,9 @@ Nrf24l Mirf = Nrf24l();
 Nrf24l::Nrf24l(){
 	cePin = 3;
 	csnPin = 4;
-	channel = 40;
+	channel = 0x55;
 	payload = 5;
-	rfsetup = 0x06; // 1Mbps, max power
+	rfsetup = 0x07; // 1Mbps, max power
 	spi = NULL;
 }
 

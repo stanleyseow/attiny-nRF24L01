@@ -15,6 +15,10 @@ e-mail : stanleyseow@gmail.com
 github : https://hithub.com/stanleyseow/attiny-nRF24L01
 Desc   : This SPI 85 is for attiny85/x5 and attiny84/x4
 
+Date : 24 July 2013
+Desc : Updates pin mapping based on arduino-tiny-cores
+https://code.google.com/p/arduino-tiny/
+
  */
 
 #include "pins_arduino.h"
@@ -29,8 +33,8 @@ const static uint8_t SCK  = PB2;
 
 #if defined( __AVR_ATtiny84__ )
 const static uint8_t SS   = PA7;
-const static uint8_t MOSI = PA5;
-const static uint8_t MISO = PA6;
+const static uint8_t MOSI = PA6; // mapped according to arduino-tiny-core
+const static uint8_t MISO = PA5; // mapped according to arduino-tiny-core
 const static uint8_t SCK  = PA4;
 #endif
 
@@ -69,6 +73,6 @@ void SPI85Class::setDataMode(uint8_t mode)
 void SPI85Class::setClockDivider(uint8_t rate)
 {
 //  SPCR = (SPCR & ~SPI_CLOCK_MASK) | (rate & SPI_CLOCK_MASK);
-  //SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | ((rate >> 2) & SPI_2XCLOCK_MASK);
+//	SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | ((rate >> 2) & SPI_2XCLOCK_MASK);
 }
 
