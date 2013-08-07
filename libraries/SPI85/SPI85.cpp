@@ -31,11 +31,12 @@ const static uint8_t MISO = PB0;
 const static uint8_t SCK  = PB2;
 #endif
 
+// attiny84 tested working using Arduino Digital Pins below
 #if defined( __AVR_ATtiny84__ )
-const static uint8_t SS   = PA7;
-const static uint8_t MOSI = PA6; // mapped according to arduino-tiny-core
-const static uint8_t MISO = PA5; // mapped according to arduino-tiny-core
-const static uint8_t SCK  = PA4;
+const static uint8_t SS   = 3;
+const static uint8_t MOSI = 5;
+const static uint8_t MISO = 4; 
+const static uint8_t SCK  = 6;
 #endif
 
 SPI85Class SPI85;
