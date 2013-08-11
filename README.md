@@ -1,3 +1,10 @@
+
+＊＊＊ This repo is for reference only as attiny Mirf codes have been combined back to the Mirf libraries that support 
+Arduino (UNO/MEGA) and attiny platforms on a single libs ( with SPI85 )
+
+Pls goto the Mirf repo here https://github.com/stanleyseow/arduino-nrf24l01
+
+
 attiny-nRF24L01
 ===============
 Arduino attiny support files for nRF24L01 RF modules, ported from Arduino mirf libraries to use USI as attiny does 
